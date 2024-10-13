@@ -4,7 +4,7 @@
     const test = require('tape');
     const EasySoap = require('..');
 
-    var soapTestDataArray = [
+    const soapTestDataArray = [
         [{
             host: 'webservices.oorsprong.org',
             path: '/websamples.countryinfo/CountryInfoService.wso',
@@ -23,17 +23,17 @@
     ];
 
     // store all soap clients
-    var soapClients = [];
+    const soapClients = [];
 
     test('createClient', (t) => {
         soapTestDataArray.forEach((soapTestDataItem) => {
-            let connectionData = soapTestDataItem[0];
-            let soapOptions = soapTestDataItem[1] || {};
+            const connectionData = soapTestDataItem[0];
+            const soapOptions = soapTestDataItem[1] || {};
 
-            let soapClient = EasySoap(connectionData, soapOptions);
+            const soapClient = EasySoap(connectionData, soapOptions);
             soapClients.push({
-                'url'     : connectionData.host + connectionData.path,
-                'instance': soapClient
+                url     : connectionData.host + connectionData.path,
+                instance: soapClient
             });
 
             t.ok(true, 'soapClient create for ' + connectionData.host);
@@ -44,9 +44,9 @@
 
     test('getAllFunctions', async (t) => {
         try {
-            for (let soapClient of soapClients) {
+            for (const soapClient of soapClients) {
                 t.comment(`=> ${soapClient.instance._params.host}`);
-                let functionsAsArray = await soapClient.instance.getAllFunctions();
+                const functionsAsArray = await soapClient.instance.getAllFunctions();
                 t.ok(functionsAsArray.length !== 0, `${functionsAsArray.length} functions (${soapClient.instance._params.host})`);
             }
 
@@ -69,7 +69,7 @@
                     xmlns: 'http://www.dataaccess.com/webservicesserver/'
                 },
                 params: {
-                    'dNum': 255
+                    dNum: 255
                 }
             };
 
@@ -94,7 +94,7 @@
                     xmlns: 'http://webservices.daehosting.com/ISBN'
                 },
                 params: {
-                    'sISBN': '1491904240'
+                    sISBN: '1491904240'
                 }
             });
 
@@ -118,7 +118,7 @@
                     xmlns: 'http://www.oorsprong.org/websamples.countryinfo'
                 },
                 params: {
-                    'sCountryISOCode': 'DE'
+                    sCountryISOCode: 'DE'
                 }
             });
 
@@ -150,14 +150,13 @@
 
         const json = soapClient.instance.getXmlDataAsJson(xml);
 
-        t.ok(json.NumberToDollars, 'no "NumberToDollars" key');
-        t.ok(json.NumberToDollars.filter((i) => i['testParam1']).length === 1, 'found testParam1 only once');
-        t.ok(json.NumberToDollars.some((i) => i['testParam1'] && i['testParam1'] === '1'), 'testParam1 has value 1');
-
-        t.ok(json.NumberToDollars.filter((i) => i['testParam2']).length === 1, 'found testParam2 only once');
-        t.ok(json.NumberToDollars.some((i) => i['testParam2'] && i['testParam2'].length === 2), 'testParam2 has only 2 items');
-        t.ok(json.NumberToDollars.some((i) => i['testParam2'] && i['testParam2'].includes('2')), 'testParam2 has value 2');
-        t.ok(json.NumberToDollars.some((i) => i['testParam2'] && i['testParam2'].includes('3')), 'testParam2 has value 3');
+        t.ok(json.NumberToDollars, 'has "NumberToDollars" key');
+        t.ok(Object.keys(json.NumberToDollars).filter(key => key === 'testParam1').length === 1, 'found testParam1 only once');
+        t.ok(json.NumberToDollars.testParam1 === '1', 'testParam1 has value 1');
+        t.ok(Object.keys(json.NumberToDollars).filter(key => key === 'testParam2').length === 1, 'found testParam2 only once');
+        t.ok(json.NumberToDollars.testParam2.length === 2, 'testParam2 has only 2 items');
+        t.ok(json.NumberToDollars.testParam2 && json.NumberToDollars.testParam2.includes('2'), 'testParam2 has value 2');
+        t.ok(json.NumberToDollars.testParam2 && json.NumberToDollars.testParam2.includes('3'), 'testParam2 has value 3');
 
         t.end();
     });
@@ -183,18 +182,18 @@
                 testParam1: 1,
                 testParam2: [2, 3],
                 testParam3: {
-                    '_value'     : 4,
-                    '_attributes': {
-                        'attr1': '123',
-                        'attr2': '456',
-                        'attr3': '789'
+                    _value     : 4,
+                    _attributes: {
+                        attr1: '123',
+                        attr2: '456',
+                        attr3: '789'
                     }
                 },
                 testParam4: {
-                    '_attributes': {
-                        'attr1': '123',
-                        'attr2': '456',
-                        'attr3': '789'
+                    _attributes: {
+                        attr1: '123',
+                        attr2: '456',
+                        attr3: '789'
                     }
                 }
             }
@@ -202,11 +201,11 @@
 
         const json = soapClient.instance.getXmlDataAsJson(xml);
 
-        t.ok(json.NumberToDollars, 'no "NumberToDollars" key');
-        t.ok(json.NumberToDollars.filter((i) => i['testParam1']).length === 1, 'found testParam1 only once');
-        t.ok(json.NumberToDollars.filter((i) => i['testParam2']).length === 1, 'found testParam2 only once');
-        t.ok(json.NumberToDollars.filter((i) => i['testParam3']).length === 1, 'found testParam3 only once');
-        t.ok(json.NumberToDollars.filter((i) => i['testParam4']).length === 1, 'found testParam4 only once');
+        t.ok(json.NumberToDollars, 'has "NumberToDollars" key');
+        t.ok(Object.keys(json.NumberToDollars).filter(key => key === 'testParam1').length === 1, 'found testParam1 only once');
+        t.ok(Object.keys(json.NumberToDollars).filter(key => key === 'testParam2').length === 1, 'found testParam2 only once');
+        t.ok(Object.keys(json.NumberToDollars).filter(key => key === 'testParam3').length === 1, 'found testParam3 only once');
+        t.ok(Object.keys(json.NumberToDollars).filter(key => key === 'testParam4').length === 1, 'found testParam4 only once');
 
         t.end();
     });
@@ -226,11 +225,11 @@
             params: {
                 testParam1: {
                     testParam1Deep: {
-                        '_value'     : 4,
-                        '_attributes': {
-                            'attr1': '123',
-                            'attr2': '456',
-                            'attr3': '789'
+                        _value     : 4,
+                        _attributes: {
+                            attr1: '123',
+                            attr2: '456',
+                            attr3: '789'
                         }
                     }
                 }

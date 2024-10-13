@@ -14,9 +14,9 @@
      * @return {[type]}        [description]
      */
     function mandatoryCheck (params = {}) {
-        assert.ok(params.host !== void 0, 'no host given');
-        assert.ok(params.path !== void 0, 'no path given');
-        assert.ok(params.wsdl !== void 0, 'no wsdl given');
+        assert.ok(params.host !== undefined, 'no host given');
+        assert.ok(params.path !== undefined, 'no path given');
+        assert.ok(params.wsdl !== undefined, 'no wsdl given');
     };
 
     function EasySoap (params = {}, opts = {}) {
@@ -100,8 +100,8 @@
         }
 
         return {
-            'data'    : dataAsJson,
-            'response': soapResponse
+            data    : dataAsJson,
+            response: soapResponse
         };
     };
 })();

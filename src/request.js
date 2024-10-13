@@ -4,13 +4,12 @@
     const _ = require('underscore');
 
     const assert = require('assert');
-    const request = require('request');
     const wsdlrdr = require('wsdlrdr');
 
     module.exports = SoapRequest;
 
     function getProtocol (opts = {}) {
-        if (opts.secure === void 0) {
+        if (opts.secure === undefined) {
             opts.secure = false;
         }
 
@@ -19,21 +18,36 @@
 
     function asyncRequest (params = {}) {
         return new Promise((resolve, reject) => {
-            request(params, function (error, response, body) {
-                if (error) {
-                    reject(error);
-                } else {
+            (async () => {
+                try {
+                    const got = await import('got');
+                    const response = await got.got(
+                        params.url,
+                        {
+                            method : params.method,
+                            headers: params.headers || {},
+                            body   : params.body,
+                            https  : {
+                                rejectUnauthorized: params.rejectUnauthorized
+                            }
+                        }
+                    );
+                    // console.log('statusCode:', response.statusCode);
+                    // console.log('body:', response.body);
                     resolve({
-                        'body'    : body,
-                        'response': response
+                        body: response.body,
+                        response
                     });
+                } catch (error) {
+                    // console.log('error:', error);
+                    reject(error);
                 }
-            });
+            })();
         });
     }
 
     function baseParamsToRequestParams (baseParams) {
-        var requestParams = Object.assign({}, baseParams);
+        const requestParams = Object.assign({}, baseParams);
         if (requestParams.headers) {
             if (_.isArray(requestParams.headers)) {
                 requestParams.headers = _.reduce(requestParams.headers, (store, headerItem) => {
@@ -144,23 +158,23 @@
                 );
 
                 // add custom namespaces
-                if (params.headers !== void 0) {
+                if (params.headers !== undefined) {
                     _.each(params.headers, function (headerItem, index) {
-                        var full = headerItem.namespace || headerItem.value;
+                        const full = headerItem.namespace || headerItem.value;
                         namespaces.push({
-                            'short': 'cns' + index,
-                            'full' : full
+                            short: 'cns' + index,
+                            full
                         });
                     });
                 }
 
                 // var soap = _.findWhere(namespaces, { 'short': 'soap' });
-                var xsd = _.findWhere(namespaces, { 'short': 'xsd' }) || {};
+                const xsd = _.findWhere(namespaces, { short: 'xsd' }) || {};
 
                 return {
-                    'soap_env'  : 'http://schemas.xmlsoap.org/soap/envelope/',
-                    'xml_schema': xsd.full || 'http://www.w3.org/2001/XMLSchema',
-                    'namespaces': namespaces
+                    soap_env  : 'http://schemas.xmlsoap.org/soap/envelope/',
+                    xml_schema: xsd.full || 'http://www.w3.org/2001/XMLSchema',
+                    namespaces
                 };
             });
     }
@@ -243,9 +257,9 @@
         });
 
         return {
-            'body'    : result.body,
-            'response': result.response,
-            'header'  : result.response.headers
+            body    : result.body,
+            response: result.response,
+            header  : result.response.headers
         };
     };
 })();
